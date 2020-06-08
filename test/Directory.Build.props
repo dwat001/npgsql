@@ -3,7 +3,7 @@
 
   <!-- Build configuration -->
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks>net48</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
