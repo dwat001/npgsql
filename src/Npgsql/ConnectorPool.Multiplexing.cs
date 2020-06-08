@@ -307,6 +307,8 @@ namespace Npgsql
                     task.GetAwaiter().GetResult(); // Throw the exception
                     return true;
 
+                case TaskStatus.WaitingForActivation:
+                    // For .NET Framework only, may be optimizable
                 case TaskStatus.Running:
                 {
                     // Asynchronous completion, which means the writing is flushing to network and there's actual I/O
@@ -349,6 +351,7 @@ namespace Npgsql
                 }
 
                 default:
+                    Debug.Fail("When writing command to connector, task is in invalid state " + task.Status);
                     throw new Exception("When writing command to connector, task is in invalid state " + task.Status);
                 }
             }
@@ -366,6 +369,8 @@ namespace Npgsql
                     task.GetAwaiter().GetResult(); // Throw the exception
                     return;
 
+                case TaskStatus.WaitingForActivation:
+                    // For .NET Framework only, may be optimizable
                 case TaskStatus.Running:
                 {
                     // Asynchronous completion - the flush didn't complete immediately (e.g. TCP zero window).
@@ -394,6 +399,7 @@ namespace Npgsql
                 }
 
                 default:
+                    Debug.Fail("When flushing, task is in invalid state " + task.Status);
                     throw new Exception("When flushing, task is in invalid state " + task.Status);
                 }
 
