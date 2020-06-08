@@ -866,10 +866,7 @@ namespace Npgsql
                     {
                         commandsRead++;
 
-                        // TODO: Don't forget to remove this (at least for net5.0)
                         await ReadBuffer.Ensure(5, true);
-
-                        // TODO: async message (notifications/notices)
 
                         // We have a resultset for the command - hand back control to the command (which will
                         // return it to the user)
@@ -890,7 +887,13 @@ namespace Npgsql
                     // time (see MultiplexingWriteLoop), and we must make absolutely sure that if a connector is
                     // returned to the pool, it is *never* written to unless properly dequeued from the Idle channel.
                     if (Interlocked.Add(ref CommandsInFlightCount, -commandsRead) == 0)
+                    {
+                        Debug.Assert(!InTransaction);
+                        Debug.Assert(MultiplexAsyncWritingLock == 0 || IsBroken,
+                            $"About to return multiplexing connector to the pool, but {nameof(MultiplexAsyncWritingLock)} is {MultiplexAsyncWritingLock}");
+
                         _pool!.Return(this);
+                    }
                 }
 
                 Log.Trace("Exiting multiplexing read loop", Id);
